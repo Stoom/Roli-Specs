@@ -13,6 +13,19 @@ The specifications are derived from static analysis of shipped decoders and inde
 | [`.roliaudio`](Specs/Samples/roliaudio.md) | Specification for the `.roliaudio` audio container (revisions 1 and 2). Covers the header layout, the fixed XOR mask constants and derivation, and the decoding of the interleaved 16-bit PCM (v1) and FLAC (v2) payloads. |
 | [`.roliinstrument`](Specs/Samples/roliinstrument.md) | Specification for the `.roliinstrument` container (versions 1 and 2). Covers the outer container, region records, key/velocity mapping, loop properties, and how instrument regions reference external `.roliaudio` files. |
 
+### Licensing
+
+| Component | Description |
+|---|---|
+| [ROLI Connect](Specs/Licensing/roli-connect-entitlements.md) | Windows Connect 1.6.4 local proxy, shared account and entitlement caches, and the evidence needed to verify offline compatibility. |
+| [ROLI Dashboard](Specs/Licensing/roli-dashboard-entitlements.md) | Windows Dashboard 4.7.2 acquisition paths, signed entitlement response, account binding, and expiry checks. |
+
+### Others
+
+| Name | Description |
+|---|---|
+|[ROLI Connect product downloads](Specs/Licensing/roli-connect-downloads.md) | Build lookup paths, storage keys, catalog checksums, and signed artifact delivery. |
+
 ## Notes
 
 - Specifications describe the examined formats and decoders. Compatibility with other application builds, future container versions, or unexamined content is not established.
