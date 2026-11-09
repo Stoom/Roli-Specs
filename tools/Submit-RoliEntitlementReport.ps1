@@ -281,7 +281,7 @@ Add any relevant product or app version details here. Leave out account details,
 
 function Open-EntitlementIssue([string]$Title, [string]$Body) {
     Write-Host "`n$Body`n"
-    if ((Read-Host 'Submit the entitlement report? [Y/n]') -notmatch '^n(o)?$') { return }
+    if ((Read-Host 'Submit the entitlement report? [y/N]') -notmatch '^Y(es)?$') { return }
 
     $url = $issuePage + '?template=entitlements-report.md&title=' + [uri]::EscapeDataString($Title)
     if ($Body.Length -lt 7000) {

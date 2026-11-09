@@ -1,0 +1,166 @@
+# Sanitized entitlement entries. Append reviewed variants in the same layout.
+entitlements:
+  - product_id: 'com.fxpansion.cypher2.stubloader'
+    enabled: true
+    id: '5bacdab8ea317c5f418364fb'
+    name: 'Cypher2'
+    licences:
+      - "cypher-player"
+  - product_id: 'com.fxpansion.strobe2.stubloader'
+    enabled: true
+    id: '59bb8e25412f9ac81aa0d366'
+    name: 'Strobe2'
+    licences:
+      - "strobe-player"
+  - product_id: 'com.roli.airwavecontrol'
+    enabled: true
+    id: '67f64db289d51b125c21b8b5'
+    name: 'ROLI Airwave Control'
+  - product_id: 'com.roli.airwaveplayer'
+    enabled: true
+    expiration: null
+    id: '66faaaca621b891112ece1ee'
+    name: 'ROLI Airwave Player'
+  - product_id: 'com.roli.airwaveplayer.sound-design'
+    enabled: true
+    expiration: null
+    id: '66faaaca621b891112ece1ee'
+    name: 'ROLI Airwave Player'
+  - product_id: 'com.roli.collection.evolvingclassics'
+    enabled: true
+    id: '5e8f3218bd9a63a90da09752'
+    name: 'Equator Collection 1 - Evolving Classics'
+  - product_id: 'com.roli.collection.motiondance'
+    enabled: true
+    id: '5e8f357144cc745e1249bcd6'
+    name: 'Equator Collection 2 - Motion Dance'
+  - product_id: 'com.roli.equator2'
+    enabled: true
+    id: '5e5e474a65bcda401aa98ac3'
+    name: 'Equator2'
+  - product_id: 'com.roli.equator2.eq2factorycontent3'
+    enabled: true
+    id: '5f195783c3d52eca0c81753c'
+    name: 'Equator2 Library'
+  - product_id: 'com.roli.hub'
+    enabled: true
+    id: '5b22ef6251ba7a327d411dfe'
+    name: 'ROLI Connect'
+  - product_id: 'com.roli.placeholder.equator'
+    enabled: true
+    id: '594937eabd8ee7471384fc68'
+    name: 'ROLI Equator'
+    licences:
+      - "equator-player"
+  - product_id: 'com.roli.poly'
+    enabled: true
+    id: '580f7ec2d19dffc19e5d1e27'
+    name: 'PolyThru (Beta)'
+  - product_id: 'com.roli.roliblocksserver'
+    enabled: true
+    id: '5b61b96d304132362c73fbcf'
+    name: 'ROLI Hardware Driver'
+  - product_id: 'com.roli.rolidashboard'
+    enabled: true
+    id: '580f7ec2d19dffc19e5d1e1f'
+    name: 'ROLI Dashboard'
+  - product_id: 'com.roli.soundpacks.ambientdarklight'
+    enabled: true
+    id: '613b72d7db43788f54324c89'
+    name: 'Ambient Darklight'
+  - product_id: 'com.roli.soundpacks.chillwavedrifting'
+    enabled: true
+    id: '58a3140b48a91b5828326dfb'
+    name: 'Chillwave Drifting'
+  - product_id: 'com.roli.soundpacks.cinematica'
+    enabled: true
+    id: '592d4319d2b48ac010eef186'
+    name: 'Cinematica'
+  - product_id: 'com.roli.soundpacks.cypher2fundamentals'
+    enabled: true
+    id: '5d44537a3b291ae17713c40b'
+    name: 'Cypher2 Fundamentals'
+  - product_id: 'com.roli.soundpacks.depstest'
+    enabled: true
+    id: '5d324c8a9f00848256266e02'
+    name: 'Deps Test'
+  - product_id: 'com.roli.soundpacks.dubstep'
+    enabled: true
+    id: '5811da5d18e2502c711f251d'
+    name: 'Giant Dubstep'
+  - product_id: 'com.roli.soundpacks.edm'
+    enabled: true
+    id: '5811da4118e2502c711f251c'
+    name: '5D EDM'
+  - product_id: 'com.roli.soundpacks.elementaledm'
+    enabled: true
+    id: '5e4571eb981337927f7d1eac'
+    name: 'Elemental EDM'
+  - product_id: 'com.roli.soundpacks.elementals'
+    enabled: true
+    id: '592d3ff2d2b48ac010eef0f8'
+    name: 'Elementals'
+  - product_id: 'com.roli.soundpacks.equator2fundamentals'
+    enabled: true
+    id: '6012de1c7eded02459a78f63'
+    name: 'Equator2 Fundamentals'
+  - product_id: 'com.roli.soundpacks.fundamentals'
+    enabled: true
+    id: '591d8b3e036f61e42db34edf'
+    name: 'Fundamentals'
+  - product_id: 'com.roli.soundpacks.granularmotion'
+    enabled: true
+    id: '618be422316257a7335afaec'
+    name: 'Granular Motion'
+  - product_id: 'com.roli.soundpacks.lofihiphop'
+    enabled: true
+    id: '62ab48f02f8db72400c0ec0c'
+    name: 'Lo-fi Hip Hop'
+  - product_id: 'com.roli.soundpacks.motionwaves'
+    enabled: true
+    id: '60f8136529578ac838dd0e53'
+    name: 'Motion Waves'
+  - product_id: 'com.roli.soundpacks.nerdlemon'
+    enabled: true
+    id: '59fb0435fb6c353a51b7a630'
+    name: 'Lemon'
+  - product_id: 'com.roli.soundpacks.pharrellhappy'
+    enabled: true
+    id: '59df9a367293eb191b3d5abc'
+    name: 'Happy'
+  - product_id: 'com.roli.soundpacks.sessionkeys'
+    enabled: true
+    id: '592d3f14df77185e6b077399'
+    name: 'Session Keys'
+  - product_id: 'com.roli.soundpacks.strobe2fundamentals'
+    enabled: true
+    id: '5d480454bba9f71d0ffc99e6'
+    name: 'Strobe2 Fundamentals'
+  - product_id: 'com.roli.soundpacks.structure'
+    enabled: true
+    id: '58a3141d45c209782e7e8f4a'
+    name: 'Structure'
+  - product_id: 'com.roli.soundpacks.worldcolours'
+    enabled: true
+    id: '5811da7718e2502c711f2521'
+    name: 'World Colours'
+  - product_id: 'com.roli.soundpacks.xmas17'
+    enabled: true
+    id: '5a2ab144c6fae593033ff761'
+    name: 'Express your Elf'
+  - product_id: 'com.roli.studiobundle'
+    enabled: true
+    id: '5e749623d7821ebc288499b1'
+    name: 'ROLI Studio'
+  - product_id: 'com.roli.studiodrums'
+    enabled: true
+    id: '5db0287efb201839420ae21a'
+    name: 'ROLI Studio Drums'
+  - product_id: 'com.roli.studioplayer'
+    enabled: true
+    id: '5b60b78a16f2b4957c7a345f'
+    name: 'ROLI Studio Player'
+  - product_id: 'com.roli.studioplayer.beta'
+    enabled: true
+    id: '5b60b78a16f2b4957c7a345f'
+    name: 'ROLI Studio Player'
