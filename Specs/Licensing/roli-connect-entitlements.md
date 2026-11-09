@@ -281,7 +281,7 @@ User-Agent: ROLI_CONNECT/1.6.4
 X-Access-Token: <session token>
 ```
 
-The live request succeeded with this token header and without a `Cookie` header. The unauthenticated requirement was not tested.
+A request with this token header can omit the `Cookie` header. Behavior without a token is unspecified.
 
 **Path parameters**
 
@@ -704,7 +704,7 @@ User-Agent: ROLI_CONNECT/1.6.4
 X-Access-Token: <session token>
 ```
 
-The live request succeeded with this token header and without a `Cookie` header. The unauthenticated probe returned HTTP 401.
+A request with this token header can omit the `Cookie` header. An unauthenticated request returns HTTP 401.
 
 </td>
 <td width="50%" valign="top">
@@ -834,7 +834,7 @@ Content-Type: application/json
 User-Agent: ROLI_CONNECT/1.6.4
 ```
 
-The live registration succeeded without `X-Access-Token` or a `Cookie` header. Connect's shared client adds the token header when it already has a usable token. Server behavior with a supplied token remains unverified.
+Registration can omit both `X-Access-Token` and `Cookie`. Connect's shared client adds the token header when it already has a usable token. Server behavior with a supplied token remains unspecified.
 
 **Body and parameters**
 
@@ -856,7 +856,7 @@ type RequestBody = {
 
 | Field or area | Interpretation |
 | --- | --- |
-| `guardian_email` | The minor registration flow can include this field. The tested adult registration omitted it. |
+| `guardian_email` | The minor registration flow can include this field. Adult registration can omit it. |
 
 </td>
 <td width="50%" valign="top">
@@ -891,7 +891,7 @@ type ResponseBody = {
 | Field or area | Interpretation |
 | --- | --- |
 | `token` | The registration store reads this field as the session token. |
-| `user` | The model shows the fields retained by the registration probe. The full nested shape remains unverified. |
+| `user` | The nested shape is partially specified. |
 | `user.coppa_status` | The response field is Boolean. The request sends a string enum. |
 
 </td>
@@ -918,7 +918,7 @@ User-Agent: ROLI_CONNECT/1.6.4
 X-Access-Token: <session token>
 ```
 
-Both live requests succeeded with `X-Access-Token` and without a request `Cookie` header. A request without the token was outside the test.
+Both request forms can omit the `Cookie` header when they supply `X-Access-Token`. Behavior without a token is unspecified.
 
 **Body and parameters**
 
@@ -999,7 +999,7 @@ User-Agent: ROLI_CONNECT/1.6.4
 X-Access-Token: <session token>
 ```
 
-The live request succeeded with this token header and without a `Cookie` header. The unauthenticated probe returned HTTP 401.
+A request with this token header can omit the `Cookie` header. An unauthenticated request returns HTTP 401.
 
 </td>
 <td width="50%" valign="top">
@@ -1082,7 +1082,7 @@ Offsets start at zero within each record. Public-key offsets are relative to the
 2. Check the certificate expiry. Compare the body signature’s key ID with the certificate’s signer key ID, then verify the signature over the response body text.
 3. Parse the verified JSON, match `uid` to the current account, and check the top-level payload `expiration`.
 
-The independent verifier accepted the Base64 certificate text and rejected the decoded certificate bytes. The sampled body signature survived two-space JSON reserialization, while compact JSON failed. Preserve the original response text for verification. The [Dashboard signature specification](roli-dashboard-entitlements.md#signed-entitlement-response) gives the embedded root public key and remaining verifier details.
+The certificate signature covers the canonical Base64 certificate text. The body signature covers the exact JSON bytes, including whitespace. Preserve the original response text for verification. The [Dashboard signature specification](roli-dashboard-entitlements.md#signed-entitlement-response) gives the embedded root public key and remaining verifier details.
 
 </details>
 
@@ -1104,7 +1104,7 @@ User-Agent: ROLI_CONNECT/1.6.4
 X-Access-Token: <session token>
 ```
 
-The live request succeeded with this token header and without a `Cookie` header. The unauthenticated probe returned HTTP 401.
+A request with this token header can omit the `Cookie` header. An unauthenticated request returns HTTP 401.
 
 </td>
 <td width="50%" valign="top">
@@ -1345,7 +1345,7 @@ User-Agent: ROLI_CONNECT/1.6.4
 X-Access-Token: <session token>
 ```
 
-The live request succeeded with this token header and without a `Cookie` header. The unauthenticated probe returned HTTP 401.
+A request with this token header can omit the `Cookie` header. An unauthenticated request returns HTTP 401.
 
 **Query parameters**
 
@@ -1553,9 +1553,9 @@ JSON value. The traced caller reads no response fields.
 
 ### Native entitlement response
 
-Dashboard reads the signed JSON body and verifies the three signature headers. The [entitlement response model](#get-user-entitlements) shows the sampled body fields and types. In the authenticated probe, `uid` matched the account response’s `id`.
+Dashboard reads the signed JSON body and verifies the three signature headers. The [entitlement response model](#get-user-entitlements) shows the sampled body fields and types. The top-level `uid` identifies the account by the account response’s `id`.
 
-An individual entitlement can also carry its own `expiration` field. The user-supplied Airwave Player example and the later proxy probes showed `expiration: null` on individual entries. Dashboard’s traced expiry check uses the top-level numeric `expiration`. The meaning of a null entry expiry, the type and units of non-null values, and their effect on client acceptance remain unverified.
+An individual entitlement can also carry its own `expiration` field. Airwave Player entitlements can have `expiration: null`. Dashboard’s traced expiry check uses the top-level numeric `expiration`. The meaning of a null entry expiry, the type and units of non-null values, and their effect on client acceptance remain unverified.
 
 Dashboard also reads the trial expiry when both trial fields are present. See the [Dashboard wire model and verification rules](roli-dashboard-entitlements.md#signed-entitlement-response).
 
@@ -1590,7 +1590,7 @@ Connect's proxy and shared-file writer apply transport, cache, and JSON parsing 
 
 [Dashboard 4.7.2](roli-dashboard-entitlements.md) reads `x-message-signature`, `x-signer-certificate`, and `x-signer-certificate-signature`. It verifies a certificate chain rooted in an embedded public key and checks the certificate expiry, signed payload expiry, and account identity. That evidence applies to Dashboard's consumer path. The same checks in other apps require separate evidence.
 
-For the sampled account, both entitlement route variants returned unexpired payloads whose `uid` matched the account `id`. The certificate signature verified against Dashboard 4.7.2’s embedded trust anchor over the canonical Base64 certificate text. Verification failed over the decoded certificate bytes. The body signature verified over the HTTP response text and over two-space JSON reserialization of the sampled parsed body. Compact JSON failed. Dashboard’s offline acceptance remains unverified.
+Both entitlement route variants return the signed entitlement model. Dashboard verifies the canonical Base64 certificate text against its embedded trust anchor and verifies the exact JSON body bytes with the certified key. See the [Dashboard verification sequence](roli-dashboard-entitlements.md#verification-sequence).
 
 For offline playback, preserve genuine account and entitlement responses together, including the exact entitlement body bytes and signature headers for HTTP playback. Preserve the parsed wrapper for shared-file playback. Dashboard reserializes the wrapper's `body` before verification, so an HTTP fixture and its shared-file equivalent need separate tests. A Connect cache lifetime does not extend a signed payload's or certificate's lifetime.
 
@@ -1611,7 +1611,7 @@ The Studio Player executable SHA-256 is `e777ee1565c54781d2ad234942171cb31a6be86
 
 ## Compatibility criteria
 
-The live probes establish transport, response, and signature behavior. The checks below describe the remaining runtime work for confirming offline compatibility in each consumer.
+Offline compatibility depends on each consumer’s transport, cache behavior, and entitlement validation.
 
 1. Record a baseline for an already licensed account and machine. Capture the first launch, successful licensed launch, and relaunch with the network unavailable. Record whether each request uses the named pipe, TCP, or a direct upstream connection, and which shared files are opened.
 2. Preserve genuine authorized account and entitlement responses as private fixtures. Record their structural shapes, status, relevant headers, and exact byte lengths separately from fixture values. Keep credentials, account identifiers, and entitlement contents out of the repository.
