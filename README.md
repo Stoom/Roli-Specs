@@ -2,7 +2,7 @@
 
 This repository documents the observed structure and behavior of Roli file formats and related software, written as implementation-neutral handoffs. The goal is to describe format facts, constants, arithmetic rules, and validation results so that an independent reader, writer, or converter can be built without access to the original source code.
 
-The specifications are derived from static analysis of shipped decoders and independent byte-level examination of sample files. They intentionally contain no original source code, decompiled pseudocode, executable addresses, personal information, or local filesystem paths.
+The specifications are derived from static analysis of shipped software and independent byte-level examination of sample files. They intentionally contain no original source code, decompiled pseudocode, personal information, or local filesystem paths. Licensing specifications include build-specific executable locations where needed to identify the examined verification paths and data.
 
 ## Table of Contents
 
@@ -19,6 +19,12 @@ The specifications are derived from static analysis of shipped decoders and inde
 |---|---|
 | [ROLI Connect](Specs/Licensing/roli-connect-entitlements.md) | Windows Connect 1.6.4 local proxy, shared account and entitlement caches, and the evidence needed to verify offline compatibility. |
 | [ROLI Dashboard](Specs/Licensing/roli-dashboard-entitlements.md) | Windows Dashboard 4.7.2 acquisition paths, signed entitlement response, account binding, and expiry checks. |
+| [ROLI Airwave Player](Specs/Licensing/roli-airwave-player-entitlements.md) | Windows x64 Airwave Player 1.4.1 entitlement-consumer analysis, including acquisition, verification, and remaining validation limits. |
+| [ROLI Airwave Control](Specs/Licensing/roli-airwave-control-entitlements.md) | Windows x64 Airwave Control 1.4.1 entitlement-consumer analysis and the examined boundary with its installed helpers. |
+| [ROLI Hardware Driver](Specs/Licensing/roli-hardware-driver-entitlements.md) | Windows x64 Hardware Driver 0.7.1 investigation of entitlement consumption and the limits of the examined executable. |
+| [ROLI Studio Player](Specs/Licensing/roli-studio-player-entitlements.md) | Windows x64 Studio Player 1.4.1 entitlement-consumer analysis, including acquisition, verification, and remaining validation limits. |
+| [ROLI Studio Drums](Specs/Licensing/roli-studio-drums-entitlements.md) | Windows x64 Studio Drums 1.4.1 entitlement-consumer analysis, including acquisition, verification, and remaining validation limits. |
+| [Equator2](Specs/Licensing/equator2-entitlements.md) | Windows x64 Equator2 2.5.2 entitlement-consumer analysis, including acquisition, verification, and remaining validation limits. |
 
 ### Others
 
