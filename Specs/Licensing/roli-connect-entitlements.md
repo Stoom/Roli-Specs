@@ -115,7 +115,9 @@ An OPTIONS request with `Origin: null`, requested method GET, and requested head
 Paths are relative to `/api/v1`. Body models use TypeScript-style field and type notation. GET requests have no body. Path and query parameters appear in tables. Interpretation tables describe constraints and observed behavior. Response models list all captured fields where a complete sample is available. In these models, `?` marks a field absent from at least one sampled object of the same shape, `Record<string, T>` represents a map with variable keys, and `Array<unknown>` represents an array whose samples were empty. `// no body` marks an absent body. `{}` represents an empty JSON object. Server-wide field guarantees remain unverified.
 
 <details>
-<summary><code>POST /authenticate/roli-hub</code> — Sign in and obtain a session token.</summary>
+<summary><code>POST /authenticate/{identifier}</code> — Sign in and obtain a session token, with an optional identifier path parameter.</summary>
+
+The final path segment is optional: `/authenticate` and `/authenticate/{identifier}` are supported forms. Square brackets above denote the optional slash and segment; they are not literal URL characters. Connect uses `/authenticate/roli-hub`, while the examined instrument clients use `/authenticate`. The final segment appears to identify the requesting application or integration. Its exact server-side meaning, accepted values, and effect on authentication remain unverified; `roli-hub` is an observed value rather than a fixed part of the route.
 
 <table width="100%">
 <tr>
@@ -131,23 +133,58 @@ Content-Type: application/json
 User-Agent: ROLI_CONNECT/1.6.4
 ```
 
-The live sign-in request succeeded without a session token or a `Cookie` header.
+The sampled `/authenticate/roli-hub` sign-in request succeeded without a session token or a `Cookie` header. The headers above describe that Connect request, rather than requirements established for every identifier or the bare route.
+
+**Path parameters**
+
+| Parameter | Type | Interpretation |
+| --- | --- | --- |
+| `identifier` | Optional `string` | Appears to identify the requesting application or integration. Connect supplies `roli-hub`. Omit the slash and segment to use `/authenticate` |
+
+**Example request targets**
+
+```http
+POST /api/v1/authenticate
+POST /api/v1/authenticate/roli-hub
+```
 
 **Body and parameters**
 
+Reported successful requests accept `email` with `password`, `identity` with `password`, or all three keys together. The model below requires a password and at least one account identifier, while permitting both identifiers:
+
 ```typescript
 type RequestBody = {
-  identity: string;
   password: string;
-};
+} & (
+  | { email: string; identity?: string }
+  | { identity: string; email?: string }
+);
 ```
 
 **Request interpretation**
 
 | Field or area | Interpretation |
 | --- | --- |
+| `email` | Account email address. Accepted alongside `password`, with or without `identity`, in the reported requests. |
 | `identity` | Email address or username supplied to the sign-in form. The successful request used an email address. |
 | `password` | The account’s current password. |
+| Both identifiers | A body containing `email`, `identity`, and `password` is also reported to succeed. Precedence and behavior when the identifiers disagree remain unverified. |
+
+The following examples illustrate the three accepted key combinations. Values are placeholders:
+
+```json
+{"email": "account@example.com", "password": "<password>"}
+```
+
+```json
+{"identity": "account@example.com", "password": "<password>"}
+```
+
+```json
+{"email": "account@example.com", "identity": "account@example.com", "password": "<password>"}
+```
+
+The sampled Connect request to `/authenticate/roli-hub` uses `identity` and `password`. The examined Cypher2 and Strobe2 clients construct `email` and `password` for the bare `/authenticate` route.
 
 </td>
 <td width="50%" valign="top">
@@ -254,6 +291,8 @@ type ResponseBody = {
 | --- | --- |
 | `token` | Matches `X-Auth-Token` in the sampled response. Connect reads this field to establish its session. |
 | `user` | The account object returned alongside the session token. |
+
+The status, headers, and full response model above describe the sampled `/authenticate/roli-hub` exchange. The bare-route instrument clients also read a `token` field, but an identical full account response and identical headers have not been established for that route or other identifier values.
 
 </td>
 </tr>
@@ -972,6 +1011,122 @@ type ResponseBody = {
 | --- | --- |
 | `token` | Both profile edit and password change returned this field. |
 | Verification | `GET /user` confirmed the new profile fields, and sign-in succeeded with the new password. |
+
+</td>
+</tr>
+</table>
+
+</details>
+
+<a id="get-user-licences"></a>
+
+<details>
+<summary><code>GET /user/licences</code> — Fetch account licences, including ROLI software and sound collections.</summary>
+
+The endpoint must use the British spelling **`/user/licences`**. The American spelling `/user/licenses` is not interchangeable: a reported request to that path returned `Cannot GET /api/v1/user/licenses`. Use `/api/v1/user/licences` in the full request target, including when adding query parameters.
+
+<table width="100%">
+<tr>
+<td width="50%" valign="top">
+
+**Request**
+
+**Headers and cookies**
+
+```http
+Accept: */*
+User-Agent: ROLI_CONNECT/1.6.4
+X-Access-Token: <session token>
+Cookie: token=<cookie session token>
+```
+
+**Body and parameters**
+
+```typescript
+// no body
+```
+
+| Query parameter | Wire representation | Observed use |
+| --- | --- | --- |
+| `search_internal_id` | String | Product lookup identifier assembled as `com.roli.` followed by the lowercase product name with its final version digit removed. The examined requests produce `com.roli.cypher` and `com.roli.strobe`. |
+| `product_version` | Decimal integer in the query string | Product version derived from the product name's final digit. Both `Cypher2` and `Strobe2` produce `2`. This is separate from the DLL build version `2.6.1.7`. |
+
+**Request interpretation**
+
+| Field or area | Interpretation |
+| --- | --- |
+| Parameter presence | Both parameters are included by the recovered instrument callers. The captured request succeeds with both omitted and returns the supplied three-record array. Omission of only one parameter has not been tested. |
+| Product-name conversion | The caller reads the final character as a decimal number. If that gives a nonzero value, it removes that character from the name; otherwise it retains the name and uses version `1`. It then lowercases the name. This does not establish a general parser for multi-digit product versions. |
+| Identifier meaning | These values identify the product lookup used by the instrument. Their equivalence to keys in `/user/entitlements`, catalog IDs, or other product identifiers has not been established. |
+| Filtering | The parameter names and caller construction establish the requested product and version. Exact server matching, case sensitivity, wildcard support, accepted version range, and unknown-product behavior remain unverified. |
+
+**Example request targets**
+
+```http
+GET /api/v1/user/licences
+GET /api/v1/user/licences?search_internal_id=com.roli.cypher&product_version=2
+GET /api/v1/user/licences?search_internal_id=com.roli.strobe&product_version=2
+```
+
+The first target was captured live without query parameters. The other two illustrate targets constructed by the examined instrument clients; filtered live requests were not captured. The unfiltered sample does not establish pagination or that every account licence is always returned.
+
+</td>
+<td width="50%" valign="top">
+
+**Response**
+
+**Headers**
+
+```http
+HTTP/2 200
+Date: Wed, 11 Nov 2026 11:40:07 GMT
+Content-Type: application/json; charset=utf-8
+Content-Length: 672
+Access-Control-Allow-Credentials: true
+Access-Control-Expose-Headers: X-Auth-Token,X-ROLI-OTP
+X-Auth-Token: <replacement session token>
+Set-Cookie: token=<replacement session token>; Domain=.roli.com; Path=/; Expires=Fri, 11 Dec 2026 11:40:07 GMT; HttpOnly; Secure
+ETag: W/"<response validator>"
+```
+
+**Body**
+
+```typescript
+type ResponseBody = Array<{
+  authorized_machine_keys: Array<unknown>;
+  status: string;
+  product_id: string;
+  product_name: string;
+  licence_id: string;
+  public_id?: string;
+}>;
+```
+
+This model lists all fields in the supplied three-record JSON array. All three records have `status: "active"` and empty `authorized_machine_keys` arrays. The sample establishes neither the element type of a nonempty machine-key array nor the complete set of status values. Account-specific licence IDs are omitted from this document.
+
+**Response interpretation**
+
+| Field or area | Interpretation |
+| --- | --- |
+| Top-level array | Contains licence records. The sample includes Equator2, Equator Collection 1 - Evolving Classics, and Equator Collection 2 - Motion Dance. |
+| `authorized_machine_keys` | Array present on every sampled record, empty in each case. Its element schema, machine-limit rules, and role in application authorization remain unverified. |
+| `status` | String with the observed value `active`. Other values and their effect on clients remain unverified. |
+| `product_id` | Product identifier represented as a string. Do not substitute it for `licence_id` or a query's `search_internal_id`. Cross-endpoint identifier equivalence remains unverified. |
+| `product_name` | Human-readable software or collection name. |
+| `licence_id` | Identifier of the licence record, separate from its product identifier. Its presence does not establish an authorization token or signed entitlement. |
+| `public_id` | Optional product identifier: `com.roli.equator2` on the Equator2 record, absent from both collection records. Its relationship to `search_internal_id` has not been established. |
+| `licence_type` | Absent from all three supplied records. The instrument clients separately recognize this field in response text, as described below. Its presence on every licence or product is not established. |
+
+**Instrument-specific response handling**
+
+The recovered Cypher2 and Strobe2 clients scan response text for `licence_type` and read its quoted string value. This is an additional client observation, rather than a field present in the supplied Equator response model.
+
+| Recognized `licence_type` value | Instrument interpretation |
+| --- | --- |
+| `cypher-player`, `strobe-player` | Player licence result |
+| `cypher-full`, `strobe-full` | Full licence result |
+
+Both clients recognize all four labels in this shared lookup code. A full result takes precedence over a Player result. A successful login without a recognized licence leads to the client's no-product-licence message; it does not establish that the response is empty or that the server rejected authentication. These instrument-specific labels do not describe every ROLI product record returned by the endpoint. Additional response fields, licence labels, and their server-wide guarantees remain unverified.
 
 </td>
 </tr>

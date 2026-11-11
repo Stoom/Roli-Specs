@@ -25,6 +25,7 @@ The specifications are derived from static analysis of shipped software and inde
 | [ROLI Studio Player](Specs/Licensing/roli-studio-player-entitlements.md) | Windows x64 Studio Player 1.4.1 entitlement-consumer analysis, including acquisition, verification, and remaining validation limits. |
 | [ROLI Studio Drums](Specs/Licensing/roli-studio-drums-entitlements.md) | Windows x64 Studio Drums 1.4.1 entitlement-consumer analysis, including acquisition, verification, and remaining validation limits. |
 | [Equator2](Specs/Licensing/equator2-entitlements.md) | Windows x64 Equator2 2.5.2 entitlement-consumer analysis, including acquisition, verification, and remaining validation limits. |
+| [FXpansion LicenseManager](Specs/Licensing/fxpansion-license-manager.md) | Windows x64 LicenseManager 2.1.0.14 acquisition and signed authorization format, with Cypher2 and Strobe2 2.6.1.7 local checks and separate ROLI account caches. |
 
 ### Others
 
