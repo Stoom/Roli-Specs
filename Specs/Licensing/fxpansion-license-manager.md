@@ -224,6 +224,89 @@ The instrument validator checks the family prefix and product code before callin
 
 These are separate from the signed authorization parsers identified above. Serial validity, agreement between the stored serial and `SERIAL(...)`, and RSA verification are three distinct requirements. A valid-looking serial alone supplies no authorization file or signature.
 
+#### Product checks and return values
+
+The product validator receives the expected family code, an optional product code, and the candidate serial. It returns `1` if the serial or expected family pointer is absent, `2` for a failed product or shared serial check, and `0` for success. These are the serial validator's return values, separate from the instrument's authorization statuses such as 1000.
+
+For a present candidate, it uppercases temporary copies of the expected family and candidate, compares the first five characters, and, when a product code is supplied, searches the uppercase candidate for that code. In these products the expected values are `FXDCS` with `CYPR2` or `STRB2`. The product-code test is a substring search, rather than an independent requirement that the code begin at offset 6. The shared validator then receives the original candidate, not the uppercased copy. Its suffix decoder still requires uppercase encoded letters. The effect of letter case in the unchanged first 18 characters is described below.
+
+#### Character positions and decoding
+
+Offsets below are zero-based character offsets in the ordinary ASCII representation. Hyphens occupy positions in the string; removing them before assigning offsets changes the algorithm.
+
+| Offsets | Nominal group | Interpretation |
+| --- | --- | --- |
+| 0–4 | 1 | Family text, normally `FXDCS` |
+| 5 | Separator | Hyphen in the ordinary representation |
+| 6–10 | 2 | Product text, normally `CYPR2` or `STRB2` |
+| 11 | Separator | Hyphen in the ordinary representation |
+| 12–16 | 3 | Five characters retained without suffix decoding; they participate in the final checksum |
+| 17 | Separator | Hyphen in the ordinary representation |
+| 18–21 | 4 | Four encoded hexadecimal data characters |
+| 22 | 4 | Check character derived from offsets 24–27 |
+| 23 | Separator | Hyphen in the ordinary representation |
+| 24–27 | 5 | Four encoded hexadecimal data characters |
+| 28 | 5 | Check character derived from offsets 18–21 |
+| 29 | Separator | Hyphen in the ordinary representation |
+| 30–33 | 6 | Four encoded characters contributing to the final checksum |
+| 34 | 6 | Final checksum character |
+
+The shared routine copies the candidate into a temporary buffer and walks from offset 18 to the terminating NUL. It rejects an unrecognized suffix character and requires the resulting character count to be 35. The suffix conversion is:
+
+| Encoded characters | Decoded characters | Conversion |
+| --- | --- | --- |
+| `A B C D E F G H I J` | `0 1 2 3 4 5 6 7 8 9` | Subtract 17 from the ASCII code |
+| `N O P Q R S` | `A B C D E F` | Subtract 13 from the ASCII code |
+| `-` | `-` | Retain the hyphen |
+
+Digits, lowercase letters, `K`, `L`, `M`, and letters after `S` are not accepted by that suffix decoder. The first 18 characters are not passed through this conversion. There is no whitespace removal in the shared serial routine: suffix whitespace is invalid, and whitespace in the earlier portion is not silently excluded from the final sum.
+
+The conversion produces a working string `D`. It retains the original characters at offsets 0–17 and contains decoded hexadecimal characters at the suffix's letter positions. The checksum rules below refer to this working string. They describe the normal ASCII layout; malformed inputs outside that layout should not be treated as an alternative supported serial format.
+
+#### Checksum arithmetic
+
+Let `hex(n)` mean one uppercase hexadecimal character representing an integer from 0 through 15, and let `value(c)` convert a decoded hexadecimal character to its numeric value: `0`–`9` become 0–9 and `A`–`F` become 10–15. For ordinary ASCII inputs, the recovered remainder operations reduce the sums modulo 16.
+
+The final checksum is checked first:
+
+```text
+S = sum of ASCII(D[i]) for i = 0 through 33, excluding characters equal to '-'
+D[34] must equal hex(S modulo 16)
+```
+
+This is a sum of character codes, not a sum of hexadecimal numeric values. It includes the unchanged family, product, and third-group text and the decoded suffix, including both cross-check characters at offsets 22 and 28. The final character at offset 34 does not contribute to its own sum. Hyphens are skipped wherever they occur in the summed range. The format constant used to render the expected character is `%01X`.
+
+If that comparison succeeds, the routine checks the two cross-group sums:
+
+```text
+A = (value(D[18]) + value(D[19]) + value(D[20]) + value(D[21])) modulo 16
+B = (value(D[24]) + value(D[25]) + value(D[26]) + value(D[27])) modulo 16
+
+D[22] must equal hex(B)
+D[28] must equal hex(A)
+```
+
+The check character in group 4 therefore checks the four data characters in group 5, and the check character in group 5 checks the four data characters in group 4. These two sums use hexadecimal numeric values, unlike the final checksum's ASCII sum. Both check characters are themselves stored in the encoded alphabet and are decoded before comparison. All three comparisons must succeed for the shared routine to report a valid serial.
+
+#### Partial worked example
+
+Consider only the following two hypothetical data groups, with their check-character positions shown as question marks. This fragment is not a complete serial:
+
+```text
+ABCD?-NOPQ?
+```
+
+After suffix decoding, group 4's four data characters are `0 1 2 3`, whose numeric sum is 6. Group 5's four data characters are `A B C D`, whose numeric values sum to `10 + 11 + 12 + 13 = 46`, or 14 modulo 16. The group 4 check must therefore decode to `E` (14), stored as encoded `R`; the group 5 check must decode to `6`, stored as encoded `G`.
+
+```text
+Encoded fragment: ABCDR-NOPQG
+Decoded fragment: 0123E-ABCD6
+```
+
+This satisfies only the two illustrated cross-group equations. It supplies neither the rest of a serial nor its final checksum, and does not establish product validation or authorization. For an ASCII-sum example, decoded `A` contributes 65 to the final sum, whereas `value('A')` contributes 10 to a cross-group sum. Confusing those two interpretations produces a different checksum.
+
+Changing a data character can affect both a cross-group checksum and the final checksum. For ASCII letters before offset 18, changing case changes the character code by 32, which is a multiple of 16: the total ASCII sum changes, but its modulo-16 result does not. That case change can therefore preserve both the temporary uppercase product check and the final checksum. Lowercase letters in the encoded suffix are instead rejected by the decoder. The same serial parser is used for the two products with different expected product codes; it does not establish that a checksum-valid serial was issued to an account. The signed `.auth` record and its serial, machine, date, and signature checks remain separate.
+
 ### Machine report comparison
 
 The report begins with `Detecting host architecture:` and contains the following fields in order. These are the report components supplied to the comparison, including user and OS values as well as hardware. The source column records the Windows collection path recovered in the Cypher2 report generator where established. It does not imply that every manager helper uses an identical collection implementation.
@@ -356,7 +439,7 @@ For an existing authorized installation, preserve each product's `.auth` record,
 
 Evidence anchors are `ev_d8dff77467463f9a681e3031c88052b09f6cd0a0806fc623c18486020440b392` for online authorization, `ev_ca07226fee5edfa86f5296df72d41ea795e1b60b7a2b021fe770edc56dee843c` for request framing, `ev_a177741a47f1aea2885e2b3c1cdfa9a7ff5ceea28d9cf1b4421c9035138f6378` for manager acceptance, and `ev_215a8d2b52968ce4253ae4d45bd1d61e283facfa29a5a41d877f6222bba452f8` for its signature verifier. The instrument locations above anchor the corresponding local load, verification, and launch behavior in the separately identified DLL builds.
 
-This examination used static program and installed-resource evidence. It did not validate current remote services, genuine issued authorization records, successful runtime acceptance, a running plug-in host, or every manager command. The exact public-key serialization, complete serial-number arithmetic, remembered-login storage, deauthorization workflow, and detailed feature restrictions remain unresolved.
+This examination used static program and installed-resource evidence. It did not validate current remote services, genuine issued authorization records, successful runtime acceptance, a running plug-in host, or every manager command. The exact public-key serialization, malformed-serial edge cases, remembered-login storage, deauthorization workflow, and detailed feature restrictions remain unresolved.
 
 Use a genuine, authorized fixture to verify the following cases on these builds. All remain pending runtime validation.
 
